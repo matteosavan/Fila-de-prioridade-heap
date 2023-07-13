@@ -1,3 +1,8 @@
+/*
+DESENVOLVIDO POR MATTEO C SAVAN
+github: mttsvn
+*/
+
 #include <stdio.h>
 typedef int T;
 #define qtdd_MAX_elementos 15
