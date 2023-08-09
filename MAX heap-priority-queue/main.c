@@ -8,8 +8,11 @@ github: matteosavan
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+
+
 typedef int T;
-#define qtdd_MAX_elementos 15
+#define qtdd_MAX_elementos 1000
 
 struct fila_de_prioridade_heap {
   T vetor[qtdd_MAX_elementos];
@@ -63,26 +66,27 @@ void adicionar_a_heap(T elemento, fila_prioridade *fila){
     consertar_fixUp(fila->i_ultimo_elemento_vazio, fila->vetor);
     (fila->i_ultimo_elemento_vazio)++;
   }
+  //printar_vetor(fila->vetor, fila->i_ultimo_elemento_vazio);
 }
-//2 2 4 4 8
-int maior_entre(T vetor[], int i_pai, int i_ultimo_elemento){
+//aqui em cima eu garanto que ta certo
+
+
+int maior_entre(T vetor[], int i_pai, int i_ultimo_elemento_preenchido){
   int pai, filho_1, filho_2;
   int filho_1_ok=0, filho_2_ok=0;
   pai = vetor[i_pai];
   int i_filho_1=i_pai*2+1, i_filho_2=i_pai*2+2;
 
-  //printf("temos o indice do ultimo elemento sendo %d e o indice do filho_1 sendo %d e indice do filho 2 sendo: %d\n", i_ultimo_elemento, i_filho_1, i_filho_2);
-
-  if((i_filho_1)>i_ultimo_elemento){//caso os filhos estejam fora do vetor
-    return i_pai; 
+  if((i_filho_1)>i_ultimo_elemento_preenchido){//caso os filhos estejam fora do vetor
+    return i_pai; //só temos o pai
   }
   
-  if(i_ultimo_elemento>=(i_filho_1)){
+  if(i_ultimo_elemento_preenchido>=(i_filho_1)){
     filho_1 = vetor[i_filho_1];
     filho_1_ok = 1;
   }
   
-  if(i_ultimo_elemento>=(i_filho_2)){
+  if(i_ultimo_elemento_preenchido>=(i_filho_2)){
     filho_2 = vetor[i_filho_2];
     filho_2_ok = 1;
   }
@@ -92,7 +96,7 @@ int maior_entre(T vetor[], int i_pai, int i_ultimo_elemento){
   //caso tenhamos o filho 1 e o filho 2:
   if(filho_1_ok && filho_2_ok){
     if (pai>= filho_1 && pai>= filho_2){
-      return pai;
+      return i_pai;
     }
     else {
       if (filho_1>=filho_2){
@@ -114,7 +118,7 @@ int maior_entre(T vetor[], int i_pai, int i_ultimo_elemento){
 
   //caso temos só o filho 2:
   if (filho_2_ok){
-    if (pai>=filho_2)return pai;
+    if (pai>=filho_2)return i_pai;
     else return i_filho_2;
   }
 
@@ -123,35 +127,38 @@ int maior_entre(T vetor[], int i_pai, int i_ultimo_elemento){
   }
 }
 
-
-void consertar_fixDown(T vetor[], int i_pai, int i_ultimo_elemento){
-  int indice_maior_entre_pai_e_filhos = maior_entre(vetor, i_pai, i_ultimo_elemento);
+void consertar_fixDown(fila_prioridade *fila, int i_pai, int i_ultimo_elemento_preenchido){
+  
+  int indice_maior_entre_pai_e_filhos = maior_entre(fila->vetor, i_pai, i_ultimo_elemento_preenchido);
 
   if (indice_maior_entre_pai_e_filhos==i_pai)return;
   else{
-    swap(indice_maior_entre_pai_e_filhos, i_pai, vetor);
-    consertar_fixDown(vetor, indice_maior_entre_pai_e_filhos, i_ultimo_elemento);
+    swap(indice_maior_entre_pai_e_filhos, i_pai, fila->vetor);
+    //printf("trocou pelo indice %d\n", indice_maior_entre_pai_e_filhos);
+    consertar_fixDown(fila, indice_maior_entre_pai_e_filhos, i_ultimo_elemento_preenchido);
   }
 }
 
 T remover_maior_da_heap (fila_prioridade *fila){
-  if (vazia(fila))return 0; //caso vazia
+  if (vazia(fila)){
+    printf("vazia\n");
+    return 0; //caso vazia
+  }
   
   T maior = fila->vetor[0]; //o maior é sempre o primeiro elemento do vetor
-  
-  (fila->i_ultimo_elemento_vazio)--;//como vamos remover o elemento então temos que decrementar o contador
-  
-  int indice_ultimo_elemento = (fila->i_ultimo_elemento_vazio); 
+  int indice_ultimo_elemento_preenchido = (fila->i_ultimo_elemento_vazio)-1;
+  (fila->i_ultimo_elemento_vazio) = fila->i_ultimo_elemento_vazio-1;//como vamos remover o elemento então temos que decrementar o contador
 
-  fila->vetor[0] = fila->vetor[indice_ultimo_elemento];
-  //printf("\nui: %d\n", fila->vetor[indice_ultimo_elemento]);
+  fila->vetor[0] = fila->vetor[indice_ultimo_elemento_preenchido];
 
-  consertar_fixDown(fila->vetor, 0, indice_ultimo_elemento);    
+  swap(0, indice_ultimo_elemento_preenchido, fila->vetor);
   
+  consertar_fixDown(fila, 0, indice_ultimo_elemento_preenchido);  
   return maior;
 }
 
 int main(void) {
+  //se quiser testar:
   fila_prioridade fila;
   inicializar_fila_de_prioridade_heap(&fila);
   int a;
@@ -163,10 +170,9 @@ int main(void) {
  
   }
   while(!vazia(&fila)){
-    a = remover_maior_da_heap(&fila); /
+    a = remover_maior_da_heap(&fila); 
   printf("o elemento removido foi %d\n", a);
   }
-  
 
   return 0;
-}
+}}
